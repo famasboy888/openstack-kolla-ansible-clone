@@ -1,0 +1,39 @@
+---
+- name: Get info on RabbitMQ container
+  become: True
+  kolla_container_facts:
+    container_engine: "{{ kolla_container_engine }}"
+    name: "rabbitmq"
+  register: container_info
+
+- name: Put RabbitMQ node into maintenance mode
+  kolla_toolbox:
+    container_engine: "{{ kolla_container_engine }}"
+    module_name: "community.rabbitmq.rabbitmq_upgrade"
+    module_args:
+      action: "drain"
+    user: root
+  become: true
+  when: container_info._containers | length > 0
+
+- name: Restart rabbitmq container
+  vars:
+    service_name: "rabbitmq"
+    service: "{{ rabbitmq_services[service_name] }}"
+  become: true
+  kolla_docker:
+    action: "recreate_or_restart_container"
+    common_options: "{{ docker_common_options }}"
+    name: "{{ service.container_name }}"
+    image: "{{ service.image }}"
+    volumes: "{{ service.volumes }}"
+    environment: "{{ service.environment }}"
+    dimensions: "{{ service.dimensions }}"
+    healthcheck: "{{ service.healthcheck | default(omit) }}"
+
+- name: Waiting for rabbitmq to start
+  vars:
+    service_name: "rabbitmq"
+    service: "{{ rabbitmq_services[service_name] }}"
+  become: true
+  command: "{{ kolla_container_engine }} exec {{ service.container_name }} rabbitmqctl wait --timeout 60 {{ rabbitmq_pid_file }}"

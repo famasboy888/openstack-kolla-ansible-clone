@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+container_engine="${1:-docker}"
+
+echo "##### System Identification #####"
+egrep -w 'PRETTY_NAME|VERSION_ID' /etc/os-release
+
+echo "##### ${container_engine^} Version #####"
+$container_engine --version
+
+echo "##### ${container_engine^} Info #####"
+$container_engine info
+
+echo "##### Ansible Version #####"
+ansible --version
+
+echo "##### List installed packages, including editables #####"
+pip list
+
+echo "##### Globals.yml file #####"
+egrep -w 'kolla_base_distro|openstack_release' /etc/kolla/globals.yml
+cat /etc/kolla/globals.yml | grep ^enable_
+
+echo "##### ${container_engine^} Images #####"
+$container_engine images -a --filter "label=kolla_version" --filter "dangling=false" --format "{{.ID}} - {{.Repository}}:{{.Tag}} - {{.CreatedSince}}"
+
+echo "##### All ${container_engine^} Containers  #####"
+$container_engine ps -a
+
+echo "##### Ip Link Show  #####"
+ip link show
