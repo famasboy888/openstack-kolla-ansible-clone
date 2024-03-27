@@ -3,7 +3,8 @@ Constraints
 =============
 
 From Kolla-Ansible steps:
-```bash
+
+```
 pip install python-openstackclient -c https://releases.openstack.org/constraints/upper/2023.1
 ```
 
