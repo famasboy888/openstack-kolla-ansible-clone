@@ -6,7 +6,7 @@ From Kolla-Ansible steps:
 
 ::
 
-    pip install python-openstackclient -c https://releases.openstack.org/constraints/upper/2023.1
+    pip install python-openstackclient -c https://raw.githubusercontent.com/famasboy888/openstack-kolla-ansible-clone/main/constraints/upper-constraints.txt
 
 
 =============
